@@ -2,7 +2,7 @@
 
 #[ToDo]:
 #add virtualization support check
-#add if else for it and also for user inputs
+#add if else for it and also for user inputs and virtualization check
 #Configure mysql and find a way to run mysql commands in a script
 #Add some description to be echoed while the script is running
 
@@ -102,6 +102,9 @@ sudo mkdir -p /mnt/secondary
 #Mount the NFS shares
 sudo mount -t nfs $hostname:/export/primary /mnt/primary
 sudo mount -t nfs $hostname:/export/secondary /mnt/secondary
+
+#Virtualization check
+sudo egrep -c '(vmx|svm)' /proc/cpuinfo && echo "Virtualization is supported" || echo "Virtualization is not supported"
 
 #Install the cloudstack agent and kvm
 sudo apt install qemu-kvm cloudstack-agent -y
