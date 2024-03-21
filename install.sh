@@ -1,9 +1,7 @@
 #!/bin/bash
 
 #[ToDo]:
-#add virtualization support check
 #add if else for it and also for user inputs and virtualization check
-#Configure mysql and find a way to run mysql commands in a script
 #Add some description to be echoed while the script is running
 
 #Enter the hostname
@@ -63,6 +61,7 @@ sudo apt install openjdk-11-jdk -y
 
 #Add cloudstack management server repository to the sources list
 echo "deb https://download.cloudstack.org/ubuntu jammy 4.18" | sudo tee /etc/apt/sources.list.d/cloudstack.list
+
 wget -O - https://download.cloudstack.org/release.asc | sudo tee /etc/apt/trusted.gpg.d/cloudstack.asc
 sudo apt update
 
@@ -80,8 +79,36 @@ echo "innodb_lock_wait_timeout=600" >> /etc/mysql/my.cnf
 echo "max_connections=350" >> /etc/mysql/my.cnf
 echo "log-bin=mysql-bin" >> /etc/mysql/my.cnf
 echo "binlog-format = 'ROW'" >> /etc/mysql/my.cnf
+
 sudo systemctl restart mysql
+
 sudo mysql_secure_installation 
+
+#Run MySQL commands
+echo "Enter the password for the cloudstack database user: ";
+read password
+
+# Create the cloud and cloud_usage databases
+mysql -h localhost -u root -p -e "CREATE DATABASE \`cloud\`;"
+mysql -h localhost -u root -p -e "CREATE DATABASE \`cloud_usage\`;"
+
+# Create the cloud user
+mysql -h localhost -u root -p -e "CREATE USER 'cloud'@'localhost' IDENTIFIED BY '$password';"
+mysql -h localhost -u root -p -e "CREATE USER 'cloud'@'%' IDENTIFIED BY '$password';"
+
+# Grant all privileges to the cloud user on the databases
+mysql -h localhost -u root -p -e "GRANT ALL ON \`cloud\`.* TO 'cloud'@'localhost';"
+mysql -h localhost -u root -p -e "GRANT ALL ON \`cloud\`.* TO 'cloud'@'%';"
+
+mysql -h localhost -u root -p -e "GRANT ALL ON \`cloud_usage\`.* TO 'cloud'@'localhost';"
+mysql -h localhost -u root -p -e "GRANT ALL ON \`cloud_usage\`.* TO 'cloud'@'%';"
+
+# Grant process list privilege for all other databases
+mysql -h localhost -u root -p -e "GRANT PROCESS ON *.* TO 'cloud'@'localhost';"
+mysql -h localhost -u root -p -e "GRANT PROCESS ON *.* TO 'cloud'@'%';"
+
+#Deploy the cloudstack databases
+sudo cloudstack-setup-databases cloud:$password@localhost --deploy-as=root:$password
 
 #Run the cloudstack management server setup
 sudo cloudstack-setup-management
