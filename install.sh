@@ -22,6 +22,9 @@ gateway=$(ip route | grep default | awk '{print $3}')
 sed -i '2a\'"$ip apache.$hostname.u1 $hostname" /etc/hosts
 sudo hostnamectl set-hostname apache.$hostname.u1
 
+echo "Hostname is set to: "
+hostname --fqdn
+
 #Install bridge-utils
 sudo apt install bridge-utils -y
 
@@ -129,6 +132,9 @@ sudo mkdir -p /mnt/secondary
 #Mount the NFS shares
 sudo mount -t nfs $hostname:/export/primary /mnt/primary
 sudo mount -t nfs $hostname:/export/secondary /mnt/secondary
+
+#Virtualization dependencies installation
+sudo apt install openntpd openssh-server sudo neovim htop tar net-tools -y
 
 #Virtualization check
 sudo egrep -c '(vmx|svm)' /proc/cpuinfo && echo "Virtualization is supported" || echo "Virtualization is not supported"
