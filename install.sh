@@ -1,5 +1,4 @@
 #!/bin/bash
-
 #[ToDo]:
 #add if else for it and also for user inputs and virtualization check
 #Add some description to be echoed while the script is running
