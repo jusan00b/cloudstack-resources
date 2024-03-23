@@ -93,30 +93,28 @@ sudo mysql_secure_installation
 echo "Enter the password for the cloudstack database user: ";
 read password
 
-# Create the cloud and cloud_usage databases
-mysql -h localhost -u root -p -e "CREATE DATABASE \`cloud\`;"
-mysql -h localhost -u root -p -e "CREATE DATABASE \`cloud_usage\`;"
+sudo mysql "
+CREATE DATABASE `cloud`;
+CREATE DATABASE `cloud_usage`;
 
-# Create the cloud user
-mysql -h localhost -u root -p -e "CREATE USER 'cloud'@'localhost' IDENTIFIED BY '$password';"
-mysql -h localhost -u root -p -e "CREATE USER 'cloud'@'%' IDENTIFIED BY '$password';"
+CREATE USER cloud@`localhost` identified by '$password';
+CREATE USER cloud@`%` identified by '$password';
 
-# Grant all privileges to the cloud user on the databases
-mysql -h localhost -u root -p -e "GRANT ALL ON \`cloud\`.* TO 'cloud'@'localhost';"
-mysql -h localhost -u root -p -e "GRANT ALL ON \`cloud\`.* TO 'cloud'@'%';"
+GRANT ALL ON cloud.* to cloud@`localhost`;
+GRANT ALL ON cloud.* to cloud@`%`;
 
-mysql -h localhost -u root -p -e "GRANT ALL ON \`cloud_usage\`.* TO 'cloud'@'localhost';"
-mysql -h localhost -u root -p -e "GRANT ALL ON \`cloud_usage\`.* TO 'cloud'@'%';"
+GRANT ALL ON cloud_usage.* to cloud@`localhost`;
+GRANT ALL ON cloud_usage.* to cloud@`%`;
 
-# Grant process list privilege for all other databases
-mysql -h localhost -u root -p -e "GRANT PROCESS ON *.* TO 'cloud'@'localhost';"
-mysql -h localhost -u root -p -e "GRANT PROCESS ON *.* TO 'cloud'@'%';"
-
+GRANT process ON *.* TO cloud@`localhost`;
+GRANT process ON *.* TO cloud@`%`;
+"
 #Deploy the cloudstack databases
 sudo cloudstack-setup-databases cloud:$password@localhost --deploy-as=root:$password
 
 #Run the cloudstack management server setup
 sudo cloudstack-setup-management
+
 #allow the mysql port in the firewall
 sudo ufw allow mysql
 
