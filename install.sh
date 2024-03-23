@@ -4,7 +4,6 @@
 #add if else for it and also for user inputs and virtualization check
 #Add some description to be echoed while the script is running
 #Fix sql queries error
-#Fix yaml indentations error
 #Fix cloudstack packages installation error
 
 #Enter the hostname
@@ -32,9 +31,9 @@ network:
   renderer: networkd
   ethernets:
      $interface:
-	 dhcp4: false
-	 dhcp6: false
-	 optional: true
+      dhcp4: false
+      dhcp6: false
+      optional: true
      bridges:
       br0:
         addresses: [$ip/24]
@@ -84,7 +83,7 @@ echo "[mysqld]" >> /etc/mysql/my.cnf
 echo "server-id=1" >> /etc/mysql/my.cnf
 echo "innodb_rollback_on_timeout=1" >> /etc/mysql/my.cnf
 echo "innodb_lock_wait_timeout=600" >> /etc/mysql/my.cnf
-echo "max_connections=350" >> /etc/mysql/my.cnf
+echo "max_connections=1000" >> /etc/mysql/my.cnf
 echo "log-bin=mysql-bin" >> /etc/mysql/my.cnf
 echo "binlog-format = 'ROW'" >> /etc/mysql/my.cnf
 
@@ -97,20 +96,20 @@ echo "Enter the password for the cloudstack database user: ";
 read password
 
 sudo mysql "
-CREATE DATABASE `cloud`;
-CREATE DATABASE `cloud_usage`;
+CREATE DATABASE \`cloud\`;
+CREATE DATABASE \`cloud_usage\`;
 
-CREATE USER cloud@`localhost` identified by '$password';
-CREATE USER cloud@`%` identified by '$password';
+CREATE USER cloud@\`localhost\` identified by '$password';
+CREATE USER cloud@\`%\` identified by '$password';
 
-GRANT ALL ON cloud.* to cloud@`localhost`;
-GRANT ALL ON cloud.* to cloud@`%`;
+GRANT ALL ON cloud.* to cloud@\`localhost\`;
+GRANT ALL ON cloud.* to cloud@\`%\`;
 
-GRANT ALL ON cloud_usage.* to cloud@`localhost`;
-GRANT ALL ON cloud_usage.* to cloud@`%`;
+GRANT ALL ON cloud_usage.* to cloud@\`localhost\`;
+GRANT ALL ON cloud_usage.* to cloud@\`%\`;
 
-GRANT process ON *.* TO cloud@`localhost`;
-GRANT process ON *.* TO cloud@`%`;
+GRANT process ON *.* TO cloud@\`localhost\`;
+GRANT process ON *.* TO cloud@\`%\`;
 "
 #Deploy the cloudstack databases
 sudo cloudstack-setup-databases cloud:$password@localhost --deploy-as=root
@@ -138,9 +137,6 @@ sudo mount -t nfs $hostname:/export/secondary /mnt/secondary
 
 #Start the cloudstack management server
 service cloudstack-management start
-
-#Virtualization dependencies installation
-sudo apt install openntpd openssh-server sudo neovim htop tar net-tools -y
 
 #Virtualization check
 sudo egrep -c '(vmx|svm)' /proc/cpuinfo && echo "Virtualization is supported" || echo "Virtualization is not supported"
