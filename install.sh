@@ -20,12 +20,15 @@ read interface
 ip=$(ip a | grep $interface | grep inet | awk '{print $2}' | cut -d '/' -f1)
 gateway=$(ip route | grep default | awk '{print $3}')
 
+#Install the required packages
+sudo apt install chrony -y
+
 #Install bridge-utils
 sudo apt install bridge-utils -y
 
 #Configure the ethernet and bridge in network manager
-netowrk_manager="/etc/netplan/01-network-manager-all.yaml"
-/bin/cat <<EOM > "$netowrk_manager"
+network_manager="/etc/netplan/01-network-manager-all.yaml"
+/bin/cat <<EOM > "$network_manager"
 network:
   version: 2
   renderer: networkd
@@ -34,24 +37,25 @@ network:
       dhcp4: false
       dhcp6: false
       optional: true
-     bridges:
+  bridges:
       br0:
         addresses: [$ip/24]
-	routes:
-	  - to: default
-	    via: $gateway
-	nameservers:
+        routes:
+          - to: default
+            via: $gateway
+        nameservers:
           addresses: [8.8.8.8,8.8.4.4]
-	interfaces: [$interface]
-	dhcp4: false
-	dhcp6: false
-	parameters:
-	  stp: false
-	  forward-delay: 0
+        interfaces: [$interface]
+        dhcp4: false
+        dhcp6: false
+        parameters:
+          stp: false
+          forward-delay: 0
 EOM
 
 #Apply the changes
 sudo netplan generate
+sudo netplan --debbug apply
 sudo netplan --debbug apply
 sudo systemctl restart NetworkManager 
 
@@ -64,7 +68,6 @@ hostname --fqdn
 
 #Install the required packages
 sudo apt install ntp -y
-sudo apt install chrony -y
 sudo apt install openjdk-11-jdk -y
 
 #Add cloudstack management server repository to the sources list
@@ -73,6 +76,7 @@ echo "deb https://download.cloudstack.org/ubuntu jammy 4.18" | sudo tee /etc/apt
 wget -O - https://download.cloudstack.org/release.asc | sudo tee /etc/apt/trusted.gpg.d/cloudstack.asc
 
 #Install the cloudstack management server
+sudo apt update
 sudo apt install cloudstack-management cloudstack-usage -y
 
 #Install mysql server
@@ -94,8 +98,8 @@ sudo mysql_secure_installation
 #Run MySQL commands
 echo "Enter the password for the cloudstack database user: ";
 read password
-
-sudo mysql "
+#I am here
+sudo mysql -u root -p -e "
 CREATE DATABASE \`cloud\`;
 CREATE DATABASE \`cloud_usage\`;
 
@@ -123,8 +127,10 @@ sudo ufw allow mysql
 #Prepare NFS server
 sudo mkdir -p /export/primary
 sudo mkdir -p /export/secondary
-
+sudo touch /etc/exports
 echo "/export *(rw,async,no_root_squash,no_subtree_check)" >> /etc/exports
+
+#Install the NFS server
 sudo apt install nfs-kernel-server -y
 service nfs-kernel-server restart
 
@@ -162,8 +168,6 @@ apparmor_parser -R /etc/apparmor.d/usr.lib.libvirt.virt-aa-helper
 #Check kvm status
 lsmod | grep kvm
 echo "Output should be like this: "
-echo "kvm_intel 55496 0"
-echo "kvm 337772 1 kvm_intel"
+echo "kvm_intel    55496     0"
+echo "kvm          337772    1 kvm_intel"
 echo "kvm_amd # if you are in AMD cpu"
-
-firefox https://$ip:8080/client
