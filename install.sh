@@ -110,7 +110,7 @@ GRANT process ON *.* TO cloud@`localhost`;
 GRANT process ON *.* TO cloud@`%`;
 "
 #Deploy the cloudstack databases
-sudo cloudstack-setup-databases cloud:$password@localhost --deploy-as=root:$password
+sudo cloudstack-setup-databases cloud:$password@localhost --deploy-as=root
 
 #Run the cloudstack management server setup
 sudo cloudstack-setup-management
