@@ -3,8 +3,6 @@
 #[ToDo]:
 #add if else for it and also for user inputs and virtualization check
 #Add some description to be echoed while the script is running
-#Fix sql queries error
-#Fix cloudstack packages installation error
 
 #Enter the hostname
 echo "Enter the hostname: "
