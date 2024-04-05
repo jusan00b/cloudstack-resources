@@ -145,7 +145,7 @@ service cloudstack-management start
 sudo egrep -c '(vmx|svm)' /proc/cpuinfo && echo "Virtualization is supported" || echo "Virtualization is not supported"
 
 #Install the cloudstack agent and kvm
-sudo apt install qemu-kvm cloudstack-agent -y
+sudo apt install qemu-kvm cloudstack-agent openssh-server -y
 sed -i -e 's/\#vnc_listen.*$/vnc_listen = "0.0.0.0"/g' /etc/libvirt/qemu.conf
 
 #Configure the libvirtd
