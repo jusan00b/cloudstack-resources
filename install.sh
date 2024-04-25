@@ -35,7 +35,7 @@ network:
       dhcp6: false
       optional: true
   bridges:
-      br0:
+      cloudbr0:
         addresses: [$ip/24]
         routes:
           - to: default
@@ -145,7 +145,7 @@ service cloudstack-management start
 sudo egrep -c '(vmx|svm)' /proc/cpuinfo && echo "Virtualization is supported" || echo "Virtualization is not supported"
 
 #Install the cloudstack agent and kvm
-sudo apt install qemu-kvm cloudstack-agent openssh-server -y
+sudo apt install qemu-kvm cloudstack-agent openssh-server cpu-checker uuid -y
 sed -i -e 's/\#vnc_listen.*$/vnc_listen = "0.0.0.0"/g' /etc/libvirt/qemu.conf
 
 #Configure the libvirtd
@@ -168,3 +168,25 @@ echo "Output should be like this: "
 echo "kvm_intel    55496     0"
 echo "kvm          337772    1 kvm_intel"
 echo "kvm_amd # if you are in AMD cpu"
+
+#Permit root login in ssh
+echo "PermitRootLogin yes" >> /etc/ssh/sshd_config
+sudo systemctl restart sshd
+
+#Add uuid to the libvirtd
+uuid = $(uuid)
+echo "host_uuid = \"$uuid\"" >> /etc/libvirt/qemu.conf
+
+#Allow necessary ports in the firewall
+sudo ufw allow proto tcp from any to any port 22,1798,16514,5900:6100,49152:49216
+
+#configure additional settings in libvirtd.conf
+echo "listen_addr = \"$gateway\"" >> /etc/libvirt/libvirtd.conf
+echo "auth_tls = \"none\"" >> /etc/libvirt/libvirtd.conf
+
+#Change properties of cloudstack-agent in agent.properties
+
+## TODO: Add the properties to be changed in the agent.properties file
+##       change root passwd
+##       
+
