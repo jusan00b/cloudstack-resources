@@ -30,24 +30,24 @@ network:
   version: 2
   renderer: networkd
   ethernets:
-     $interface:
+    $interface:
       dhcp4: false
       dhcp6: false
       optional: true
   bridges:
-      cloudbr0:
-        addresses: [$ip/24]
-        routes:
-          - to: default
-            via: $gateway
-        nameservers:
-          addresses: [8.8.8.8,8.8.4.4]
-        interfaces: [$interface]
-        dhcp4: false
-        dhcp6: false
-        parameters:
-          stp: false
-          forward-delay: 0
+    cloudbr0:
+      addresses: [$ip/24]
+      routes:
+        - to: default
+          via: $gateway
+      nameservers:
+        addresses: [8.8.8.8, 8.8.4.4]
+      interfaces: [$interface]
+      dhcp4: false
+      dhcp6: false
+      parameters:
+        stp: false
+        forward-delay: 0
 EOM
 
 #Apply the changes
