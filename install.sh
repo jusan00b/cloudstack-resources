@@ -174,7 +174,7 @@ echo "PermitRootLogin yes" >> /etc/ssh/sshd_config
 sudo systemctl restart sshd
 
 #Add uuid to the libvirtd
-uid = $(uuid)
+uid=$(uuidgen)
 echo "host_uuid = \"$uid\"" >> /etc/libvirt/qemu.conf
 
 #Allow necessary ports in the firewall
@@ -185,7 +185,7 @@ echo "listen_addr = \"$gateway\"" >> /etc/libvirt/libvirtd.conf
 echo "auth_tls = \"none\"" >> /etc/libvirt/libvirtd.conf
 
 #Change properties of cloudstack-agent in agent.properties
-cloudstack_agent = "/etc/cloudstack/agent/agent.properties"
+cloudstack_agent="/etc/cloudstack/agent/agent.properties"
 /bin/cat <<EOM > "$cloudstack_agent"
 # Licensed to the Apache Software Foundation (ASF) under one
 # or more contributor license agreements.  See the NOTICE file
