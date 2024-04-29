@@ -175,7 +175,7 @@ sudo systemctl restart sshd
 
 #Add uuid to the libvirtd
 uid=$(uuidgen)
-echo "host_uuid = \"$uid\"" >> /etc/libvirt/qemu.conf
+echo "host_uuid = \"$uid\"" >> /etc/libvirt/libvirtd.conf
 
 #Allow necessary ports in the firewall
 sudo ufw allow proto tcp from any to any port 22,1798,16514,5900:6100,49152:49216
@@ -183,7 +183,7 @@ sudo ufw allow proto tcp from any to any port 22,1798,16514,5900:6100,49152:4921
 #configure additional settings in libvirtd.conf
 echo "listen_addr = \"$gateway\"" >> /etc/libvirt/libvirtd.conf
 echo "auth_tls = \"none\"" >> /etc/libvirt/libvirtd.conf
-
+sudo systemctl restart libvirtd
 #Change properties of cloudstack-agent in agent.properties
 cloudstack_agent="/etc/cloudstack/agent/agent.properties"
 /bin/cat <<EOM > "$cloudstack_agent"
@@ -588,6 +588,7 @@ iscsi.session.cleanup.enabled=false
 # The number of iothreads. There should be only 1 or 2 IOThreads per VM CPU (default is 1). The recommended number of iothreads is 1
 # iothreads=1
 EOM
+sudo systemctl restart cloudstack-agent
 
 #change the root password
 echo "Enter the new password for the root user: "
